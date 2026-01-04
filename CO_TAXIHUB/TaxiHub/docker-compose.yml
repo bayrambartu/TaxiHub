@@ -1,0 +1,35 @@
+
+services:
+  # 1. Database
+  mongodb:
+    image: mongo:latest
+    container_name: taxihub-db
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  # 2. Driver Mikro Service
+  driver-service:
+    build: ./driver-service
+    container_name: taxihub-driver-service
+    ports:
+      - "5001:5001"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+    depends_on:
+      - mongodb
+
+  # 3. API Gateway
+  api-gateway:
+    build: ./api-gateway
+    container_name: taxihub-gateway
+    ports:
+      - "5002:5002"
+    environment:
+      - DRIVER_SERVICE_URL=http://driver-service:5001
+    depends_on:
+      - driver-service
+
+volumes:
+  mongo-data:

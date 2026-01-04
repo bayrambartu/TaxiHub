@@ -1,0 +1,319 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "TaxiHub Driver Service API",
+        "title": "TaxiHub Driver Service API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:5001",
+    "basePath": "/api/v1",
+    "paths": {
+        "/drivers": {
+            "get": {
+                "description": "List all drivers with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Drivers"
+                ],
+                "summary": "List drivers",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Page size",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Driver"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new taxi driver",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Drivers"
+                ],
+                "summary": "Create new driver",
+                "parameters": [
+                    {
+                        "description": "Driver information",
+                        "name": "driver",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateDriverDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/drivers/nearby": {
+            "get": {
+                "description": "Returns taxis within 6 km sorted by distance",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Drivers"
+                ],
+                "summary": "List nearby taxis",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "format": "float64",
+                        "description": "Latitude",
+                        "name": "lat",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "format": "float64",
+                        "description": "Longitude",
+                        "name": "lon",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Taxi type (sari, turkuaz, siyah)",
+                        "name": "taxiType",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/drivers/{id}": {
+            "put": {
+                "description": "Update driver information by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Drivers"
+                ],
+                "summary": "Update driver",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Driver ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Fields to update",
+                        "name": "driver",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.CreateDriverDTO": {
+            "type": "object",
+            "required": [
+                "carBrand",
+                "carModel",
+                "firstName",
+                "lastName",
+                "lat",
+                "lon",
+                "plate",
+                "taxiType"
+            ],
+            "properties": {
+                "carBrand": {
+                    "type": "string"
+                },
+                "carModel": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string",
+                    "minLength": 2
+                },
+                "lastName": {
+                    "type": "string",
+                    "minLength": 2
+                },
+                "lat": {
+                    "type": "number"
+                },
+                "lon": {
+                    "type": "number"
+                },
+                "plate": {
+                    "type": "string"
+                },
+                "taxiType": {
+                    "type": "string",
+                    "enum": [
+                        "sari",
+                        "turkuaz",
+                        "siyah"
+                    ]
+                }
+            }
+        },
+        "model.Driver": {
+            "type": "object",
+            "properties": {
+                "carBrand": {
+                    "type": "string"
+                },
+                "carModel": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "location": {
+                    "$ref": "#/definitions/model.Location"
+                },
+                "plate": {
+                    "type": "string"
+                },
+                "taxiType": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Location": {
+            "type": "object",
+            "properties": {
+                "lat": {
+                    "type": "number"
+                },
+                "lon": {
+                    "type": "number"
+                }
+            }
+        }
+    }
+}
