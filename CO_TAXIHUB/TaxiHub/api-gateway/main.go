@@ -26,8 +26,11 @@ func main() {
 
 	app := fiber.New()
 
+	//logging every request
 	app.Use(logger.New())
 
+
+	// rate limiter middleware
 	app.Use(limiter.New(limiter.Config{
 		Max:        20,
 		Expiration: 30 * time.Second,
@@ -36,6 +39,7 @@ func main() {
 		},
 	}))
 
+	// Login endpoint to generate JWT
 	app.Post("/login", func(c *fiber.Ctx) error {
 
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -43,14 +47,16 @@ func main() {
 			"exp":  time.Now().Add(time.Hour * 4).Unix(),
 		})
 
+	    // Sign token with secret key
 		t, err := token.SignedString([]byte(jwtSecretKey))
 		if err != nil {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
-
+		// return token
 		return c.JSON(fiber.Map{"token": t})
 	})
-
+	
+	// JWT authentication middleware
 	authMiddleware := func(c *fiber.Ctx) error {
 		authHeader := c.Get("Authorization")
 		// if authHeader == "" {
@@ -71,7 +77,7 @@ func main() {
 		}
 		return c.Next()
 	}
-
+    // Proxy all driver service request
 	app.All("/api/v1/drivers/*", authMiddleware, func(c *fiber.Ctx) error {
 		driverServiceURL := os.Getenv("DRIVER_SERVICE_URL")
 
